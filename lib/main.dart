@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/adapters.dart';
+
 import 'package:stock_app/core/constants/color_constants.dart';
 import 'package:stock_app/core/themes/themes.dart';
+import 'package:stock_app/product/model/stock_book_model.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'pages/selection_page.dart';
+
+Future<void> setupHive() async {
+  await Hive.initFlutter("StockBookDatabase");
+  Hive.registerAdapter(StockBookModelAdapter());
+
+  var stockBookBox = await Hive.openBox<StockBookModel>("stockBooks");
+  // await stockBookBox.add(StockBookModel(id: 45, bookName: "Test2", creationDate: DateTime.now()));
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupHive();
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,7 +34,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Stock App',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          scaffoldBackgroundColor: AppColors.emerald,
+          fontFamily: 'Mulish',
+          primarySwatch: AppColors.mcgpalette0,
           appBarTheme: AppBarTheme(
             systemOverlayStyle: MyTheme.statusBarTheme,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -27,54 +45,7 @@ class MyApp extends StatelessWidget {
             centerTitle: false,
           ),
         ),
-        home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        home: const SelectionPage(),
       ),
     );
   }
