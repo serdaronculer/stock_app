@@ -19,11 +19,14 @@ class AllStockBookManager extends StateNotifier<List<StockBookModel>> {
     }
   }
 
-  /*  Future<StockBookModel?> getStockBook(int id) async {
-    StockBookModel? _stockBookModel = await _hiveLocalStorage.getStockBook(id: id);
+  editStockBook(StockBookModel stockBookModel) async {
+    _hiveLocalStorage.editStockBook(stockBookModel: stockBookModel);
 
-    return _stockBookModel;
-  } */
+    state = [
+      for (var item in state)
+        if (item.id == stockBookModel.id) stockBookModel else item
+    ];
+  }
 
   getAllStockBook() async {
     List<StockBookModel> _allStockBookModels = await _hiveLocalStorage.getAllStockBook();

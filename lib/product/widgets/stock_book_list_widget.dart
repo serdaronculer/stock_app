@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stock_app/core/constants/padding_constants.dart';
 import 'package:stock_app/core/constants/size_constants.dart';
+import 'package:stock_app/core/scroll.dart';
 import 'package:stock_app/product/language/language_items.dart';
 
-import '../../helper/all_helper.dart';
+import '../../core/helper/all_helper.dart';
+
 import '../model/stock_book_model.dart';
 import '../providers/all_providers.dart';
 
@@ -17,29 +19,33 @@ class StockBookListWidget extends ConsumerStatefulWidget {
 }
 
 class _StockBookListWidgetState extends ConsumerState<StockBookListWidget> {
-  List<StockBookModel> selectedItems = [];
   @override
   Widget build(BuildContext context) {
     final _allStockBooks = ref.watch(getAllStockBooksProvider);
     return SizedBox(
         height: 200.h,
         child: _allStockBooks.when(data: (allStockBooks) {
-          return ListView.builder(
-            itemCount: allStockBooks.length,
-            itemBuilder: (context, index) {
-              StockBookModel _stockBook = allStockBooks[index];
-              return ListItem(_stockBook);
-            },
+          return ScrollConfiguration(
+            behavior: MyBehavior(),
+            child: ListView.builder(
+              itemCount: allStockBooks.length,
+              itemBuilder: (context, index) {
+                StockBookModel _stockBook = allStockBooks[index];
+                return ListItem(_stockBook);
+              },
+            ),
           );
         }, error: (err, stackTree) {
-          return const Center(child: Text(LanguageItems.errorMessage));
+          return Center(child: Text(err.toString()));
         }, loading: () {
           return const Center(child: CircularProgressIndicator());
         }));
   }
 
   Padding ListItem(StockBookModel _stockBook) {
-    bool isSelected = selectedItems.any((element) => element.id == _stockBook.id);
+    final selectedStockBooks = ref.watch(selectedStockBooksProivder);
+    bool isSelected = selectedStockBooks.any((element) => element.id == _stockBook.id);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppPadding.smallPadding),
       child: ColorFiltered(
@@ -54,10 +60,10 @@ class _StockBookListWidgetState extends ConsumerState<StockBookListWidget> {
             data: ThemeData().copyWith(splashColor: Colors.transparent),
             child: ListTile(
               onLongPress: () {
-                !isSelected ? changeStatus(_stockBook, true) : null;
+                changeStatus(_stockBook, false);
               },
               onTap: () {
-                changeStatus(_stockBook, false);
+                changeStatus(_stockBook, true);
               },
               leading: const Icon(Icons.book),
               trailing: const Icon(
@@ -73,9 +79,19 @@ class _StockBookListWidgetState extends ConsumerState<StockBookListWidget> {
     );
   }
 
-  void changeStatus(StockBookModel _stockBook, bool isAdd) {
-    return setState(() {
-      isAdd ? selectedItems.add(_stockBook) : selectedItems.remove(_stockBook);
-    });
+  changeStatus(StockBookModel stockBookModel, bool onTap) {
+    final selectedStockBooks = ref.watch(selectedStockBooksProivder);
+    bool isSelected = selectedStockBooks.any((element) => element.id == stockBookModel.id);
+    if (onTap) {
+      if (!isSelected && selectedStockBooks.isNotEmpty) {
+        ref.read(selectedStockBooksProivder.notifier).addStockBook(stockBookModel);
+      } else if (isSelected && selectedStockBooks.isNotEmpty) {
+        ref.read(selectedStockBooksProivder.notifier).removeStockBook(stockBookModel);
+      }
+    } else {
+      if (!isSelected) {
+        ref.read(selectedStockBooksProivder.notifier).addStockBook(stockBookModel);
+      }
+    }
   }
 }

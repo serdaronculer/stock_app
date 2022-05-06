@@ -5,4 +5,5 @@ abstract class LocalStorage {
   Future<StockBookModel?> getStockBook({required int id});
   Future<List<StockBookModel>> getAllStockBook();
   Future<bool> deleteStockBook({required StockBookModel stockBookModel});
+  Future<void> editStockBook({required StockBookModel stockBookModel});
 }

@@ -7,8 +7,11 @@ import 'package:stock_app/core/constants/font_constants.dart';
 import 'package:stock_app/core/constants/padding_constants.dart';
 import 'package:stock_app/core/constants/size_constants.dart';
 import 'package:stock_app/product/language/language_items.dart';
+import 'package:stock_app/product/model/stock_book_model.dart';
 import 'package:stock_app/product/widgets/logo_widget.dart';
 
+import '../product/providers/all_providers.dart';
+import '../product/widgets/login_icon_button.dart';
 import '../product/widgets/stock_book_list_widget.dart';
 
 class SelectionPage extends ConsumerStatefulWidget {
@@ -19,11 +22,20 @@ class SelectionPage extends ConsumerStatefulWidget {
 }
 
 class _SelectionPageState extends ConsumerState<SelectionPage> {
+  final TextEditingController _textEditingController = TextEditingController();
   bool isSelected = false;
 
   @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var selectedStockBooks = ref.watch(selectedStockBooksProivder);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.all(AppPadding.smallPadding),
         child: Column(
@@ -45,7 +57,38 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
                 children: [
                   Container(
                     margin: EdgeInsets.only(bottom: AppPadding.smallPadding.h),
-                    child: _myStockBooks(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _myStockBooks(context),
+                        const Spacer(),
+                        selectedStockBooks.isNotEmpty
+                            ? Chip(backgroundColor: AppColors.white, label: Text("${selectedStockBooks.length}"))
+                            : Container(),
+                        LoginIconButtons(
+                          icon: const Icon(Icons.add),
+                          onPressed: () {
+                            alertMessage(Selection.add);
+                          },
+                        ),
+                        LoginIconButtons(
+                          icon: const Icon(Icons.edit),
+                          onPressed: selectedStockBooks.length == 1
+                              ? () {
+                                  alertMessage(Selection.edit);
+                                }
+                              : null,
+                        ),
+                        LoginIconButtons(
+                          icon: const Icon(Icons.delete),
+                          onPressed: selectedStockBooks.isNotEmpty
+                              ? () {
+                                  alertMessage(Selection.delete);
+                                }
+                              : null,
+                        ),
+                      ],
+                    ),
                   ),
                   const StockBookListWidget(),
                 ],
@@ -55,6 +98,85 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
         ),
       ),
     );
+  }
+
+  editSelectedStockBook() {
+    var selectedStockBook = ref.watch(selectedStockBooksProivder).first;
+
+    ref.watch(selectedStockBooksProivder.notifier).editStockBook(selectedStockBook.id, _textEditingController.text);
+    ref.watch(stockBooksProvider.notifier).editStockBook(selectedStockBook.copyWith(bookName: _textEditingController.text));
+    ref.watch(selectedStockBooksProivder.notifier).removeAllStockBook();
+    Navigator.of(context).pop();
+    _textEditingController.text = "";
+  }
+
+  createStockBook() {
+    ref.read(stockBooksProvider.notifier).addStockBook(StockBookModel.create(_textEditingController.text));
+  }
+
+  alertMessage(Selection selection) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: selection == Selection.delete
+                ? Container(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(right: AppPadding.mediumPadding),
+                          child: Icon(
+                            Icons.warning,
+                            color: AppColors.superNova,
+                            size: 48.h,
+                          ),
+                        ),
+                        const Expanded(
+                          child: Text(
+                            LanguageItems.cannotBeChanged,
+                            maxLines: 2,
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                : null,
+            content: selection == Selection.delete
+                ? const Text(LanguageItems.shouldDeleteStockBook)
+                : TextField(
+                    decoration: const InputDecoration(hintText: "Yeni Stok Defteri Adı"),
+                    controller: _textEditingController,
+                  ),
+            actions: [
+              TextButton(
+                onPressed: selection == Selection.edit
+                    ? editSelectedStockBook
+                    : selection == Selection.delete
+                        ? deleteSelectedStockBooks
+                        : createStockBook,
+                child: const Text(LanguageItems.yesMessage),
+              ),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(LanguageItems.noMessage)),
+            ],
+          );
+        });
+  }
+
+  deleteSelectedStockBooks() {
+    var selectedStockBooks = ref.watch(selectedStockBooksProivder);
+    var stockBooks = ref.watch(stockBooksProvider);
+
+    for (var item in selectedStockBooks) {
+      ref.watch(stockBooksProvider.notifier).deleteStockBook(item);
+    }
+    ref.watch(selectedStockBooksProivder.notifier).removeAllStockBook();
+    Navigator.of(context).pop();
   }
 
   Text _myStockBooks(BuildContext context) {
@@ -69,46 +191,4 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
   }
 }
 
-
-
-
-/* Container(
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        splashColor: Colors.transparent,
-                        highlightColor: isSelected ? Colors.transparent : null,
-                      ),
-                      child: ColorFiltered(
-                        colorFilter: ColorFilter.mode(Colors.red.withOpacity(0.8), BlendMode.hardLight),
-                        child: Container(
-                          color: Colors.white,
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            selected: isSelected,
-                            enabled: true,
-                            onLongPress: isSelected
-                                ? null
-                                : () {
-                                    setState(() {
-                                      HapticFeedback.vibrate();
-                                      isSelected = true;
-                                      print(isSelected);
-                                    });
-                                  },
-                            onTap: isSelected
-                                ? () {
-                                    setState(() {
-                                      isSelected = false;
-                                      print(isSelected);
-                                    });
-                                  }
-                                : null,
-                            title: const Text("Stok Defterim"),
-                            subtitle: const Text("Oluşturma tarihi - 22.01.2022"),
-                            leading: const Icon(Icons.book),
-                            trailing: const Icon(Icons.chevron_right_outlined, size: AppSize.largeSize),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ) */
+enum Selection { add, edit, delete }

@@ -47,4 +47,11 @@ class HiveLocalStorage extends LocalStorage {
       return null;
     }
   }
+
+  @override
+  Future<void> editStockBook({required StockBookModel stockBookModel}) async {
+    if (_stockBookBox.containsKey(stockBookModel.id)) {
+      await _stockBookBox.put(stockBookModel.id, stockBookModel);
+    }
+  }
 }

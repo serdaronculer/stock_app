@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
+  AppColors._();
   static const Color black = Colors.black;
   static const Color white = Colors.white;
   static const Color emerald = Color(0xff4DC885);
+  static const Color lightGrey = Color(0xffD3D3D3);
+  static const Color superNova = Color(0xffFFCC00);
 
   static const int _mcgpalette0PrimaryValue = 0xFF5EDE99;
   static const MaterialColor mcgpalette0 = MaterialColor(_mcgpalette0PrimaryValue, <int, Color>{

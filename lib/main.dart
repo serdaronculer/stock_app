@@ -5,21 +5,15 @@ import 'package:hive_flutter/adapters.dart';
 
 import 'package:stock_app/core/constants/color_constants.dart';
 import 'package:stock_app/core/themes/themes.dart';
-import 'package:stock_app/product/model/stock_book_model.dart';
 
+import 'data/hive/hive_setup.dart';
 import 'pages/selection_page.dart';
 
-Future<void> setupHive() async {
-  await Hive.initFlutter("StockBookDatabase");
-  Hive.registerAdapter(StockBookModelAdapter());
-
-  var stockBookBox = await Hive.openBox<StockBookModel>("stockBooks");
-  // await stockBookBox.add(StockBookModel(id: 45, bookName: "Test2", creationDate: DateTime.now()));
-}
+setupHiveIDGenerator() {}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await setupHive();
+  await SetupHive.setupHive();
   runApp(ProviderScope(child: MyApp()));
 }
 
