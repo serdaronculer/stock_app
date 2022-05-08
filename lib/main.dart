@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive_flutter/adapters.dart';
 
 import 'package:stock_app/core/constants/color_constants.dart';
 import 'package:stock_app/core/themes/themes.dart';
 
+import 'Routes/routes.dart';
 import 'data/hive/hive_setup.dart';
 import 'pages/selection_page.dart';
-
-setupHiveIDGenerator() {}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SetupHive.setupHive();
-  runApp(ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -27,8 +25,9 @@ class MyApp extends StatelessWidget {
       builder: (child) => MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Stock App',
+        onGenerateRoute: AppRoutes.routesGenerator,
         theme: ThemeData(
-          scaffoldBackgroundColor: AppColors.emerald,
+          scaffoldBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
           fontFamily: 'Mulish',
           primarySwatch: AppColors.mcgpalette0,
           appBarTheme: AppBarTheme(
@@ -39,7 +38,6 @@ class MyApp extends StatelessWidget {
             centerTitle: false,
           ),
         ),
-        home: const SelectionPage(),
       ),
     );
   }

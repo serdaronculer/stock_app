@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stock_app/core/constants/color_constants.dart';
+
+import '../product/widgets/app_drawer.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,12 +14,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        backgroundColor: AppColors.white,
-        elevation: 8,
-        semanticLabel: "Yazık",
-        child: Column(),
-      ),
+      appBar: AppBar(),
+      drawer: const AppDrawer(),
     );
   }
 }

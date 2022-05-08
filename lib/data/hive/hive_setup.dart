@@ -7,6 +7,7 @@ class SetupHive {
   static Future<void> setupHive() async {
     await Hive.initFlutter("StockBookDatabase");
     Hive.registerAdapter(StockBookModelAdapter());
+    
 
     var stockBookBox = await Hive.openBox<StockBookModel>("stockBooks");
     setupIDGenerator(stockBookBox);

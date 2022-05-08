@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stock_app/core/constants/padding_constants.dart';
 import 'package:stock_app/core/constants/size_constants.dart';
 import 'package:stock_app/core/scroll.dart';
@@ -22,27 +21,28 @@ class _StockBookListWidgetState extends ConsumerState<StockBookListWidget> {
   @override
   Widget build(BuildContext context) {
     final _allStockBooks = ref.watch(getAllStockBooksProvider);
-    return SizedBox(
-        height: 200.h,
-        child: _allStockBooks.when(data: (allStockBooks) {
-          return ScrollConfiguration(
-            behavior: MyBehavior(),
-            child: ListView.builder(
-              itemCount: allStockBooks.length,
-              itemBuilder: (context, index) {
-                StockBookModel _stockBook = allStockBooks[index];
-                return ListItem(_stockBook);
-              },
-            ),
-          );
-        }, error: (err, stackTree) {
-          return Center(child: Text(err.toString()));
-        }, loading: () {
-          return const Center(child: CircularProgressIndicator());
-        }));
+
+    return Expanded(
+      child: _allStockBooks.when(data: (allStockBooks) {
+        return ScrollConfiguration(
+          behavior: MyBehavior(),
+          child: ListView.builder(
+            itemCount: allStockBooks.length,
+            itemBuilder: (context, index) {
+              StockBookModel _stockBook = allStockBooks[index];
+              return listItem(_stockBook);
+            },
+          ),
+        );
+      }, error: (err, stackTree) {
+        return Center(child: Text(err.toString()));
+      }, loading: () {
+        return const Center(child: CircularProgressIndicator());
+      }),
+    );
   }
 
-  Padding ListItem(StockBookModel _stockBook) {
+  Padding listItem(StockBookModel _stockBook) {
     final selectedStockBooks = ref.watch(selectedStockBooksProivder);
     bool isSelected = selectedStockBooks.any((element) => element.id == _stockBook.id);
 
@@ -63,7 +63,12 @@ class _StockBookListWidgetState extends ConsumerState<StockBookListWidget> {
                 changeStatus(_stockBook, false);
               },
               onTap: () {
-                changeStatus(_stockBook, true);
+                if (selectedStockBooks.isEmpty) {
+                  Navigator.of(context).pushNamed('/home');
+                  ref.watch(setStockBookSelectedProvider.state).state = _stockBook;
+                } else {
+                  changeStatus(_stockBook, true);
+                }
               },
               leading: const Icon(Icons.book),
               trailing: const Icon(

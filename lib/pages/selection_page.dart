@@ -35,6 +35,7 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
   Widget build(BuildContext context) {
     var selectedStockBooks = ref.watch(selectedStockBooksProivder);
     return Scaffold(
+      backgroundColor: AppColors.emerald,
       resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.all(AppPadding.smallPadding),
@@ -67,9 +68,11 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
                             : Container(),
                         LoginIconButtons(
                           icon: const Icon(Icons.add),
-                          onPressed: () {
-                            alertMessage(Selection.add);
-                          },
+                          onPressed: selectedStockBooks.isEmpty
+                              ? () {
+                                  alertMessage(Selection.add);
+                                }
+                              : null,
                         ),
                         LoginIconButtons(
                           icon: const Icon(Icons.edit),
@@ -112,6 +115,8 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
 
   createStockBook() {
     ref.read(stockBooksProvider.notifier).addStockBook(StockBookModel.create(_textEditingController.text));
+    _textEditingController.text = "";
+    Navigator.of(context).pop();
   }
 
   alertMessage(Selection selection) {
@@ -170,7 +175,6 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
 
   deleteSelectedStockBooks() {
     var selectedStockBooks = ref.watch(selectedStockBooksProivder);
-    var stockBooks = ref.watch(stockBooksProvider);
 
     for (var item in selectedStockBooks) {
       ref.watch(stockBooksProvider.notifier).deleteStockBook(item);
