@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
 
-class IDHelper {
+class StockBookIDHelper {
   late Box<int> _stockBookBoxID;
-  IDHelper() {
-    _stockBookBoxID = Hive.box<int>("stockBooksID");
+  StockBookIDHelper() {
+    _stockBookBoxID = Hive.box<int>("stockBookID");
   }
 
   int? getID() {
@@ -17,3 +17,4 @@ class IDHelper {
     await _stockBookBoxID.put("id", newID);
   }
 }
+

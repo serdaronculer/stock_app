@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stock_app/product/model/stock_book_model.dart';
-import 'package:stock_app/product/providers/selected_stock_books_manager.dart';
+import 'package:stock_app/product/providers/stock_book_provider/selected_stock_books_manager.dart';
 
 import 'all_stock_book_manager.dart';
+
 
 final stockBooksProvider = StateNotifierProvider<AllStockBookManager, List<StockBookModel>>((ref) {
   return AllStockBookManager();
@@ -23,8 +24,12 @@ final setStockBookSelectedProvider = StateProvider<StockBookModel>((ref) {
 });
 
 final selectedStockBookProvider = Provider<StockBookModel>((ref) {
+  
   StockBookModel stockBook = ref.watch((setStockBookSelectedProvider));
   return stockBook;
 });
+
+
+
 
 

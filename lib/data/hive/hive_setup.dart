@@ -1,4 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:stock_app/product/model/category_model.dart';
+import 'package:stock_app/product/model/stock_model.dart';
+
 import '../../product/model/stock_book_model.dart';
 
 class SetupHive {
@@ -7,13 +10,27 @@ class SetupHive {
   static Future<void> setupHive() async {
     await Hive.initFlutter("StockBookDatabase");
     Hive.registerAdapter(StockBookModelAdapter());
-    
+    Hive.registerAdapter(StockModelAdapter());
+    Hive.registerAdapter(CategoryModelAdapter());
 
     var stockBookBox = await Hive.openBox<StockBookModel>("stockBooks");
-    setupIDGenerator(stockBookBox);
+
+    await Hive.openBox<StockModel>("stocks");
+    var stockName =  Hive.box<StockModel>("stocks");
+    //stockName.clear();
+
+    await Hive.openBox<int>("stockID");
+
+     await Hive.openBox<CategoryModel>("categories");
+    
+
+     await Hive.openBox<int>("categoryID");
+   
+
+    stockBookIDGenerator(stockBookBox);
   }
 
-  static setupIDGenerator(Box<StockBookModel> stockBookBox) async {
+  static void stockBookIDGenerator(Box<StockBookModel> stockBookBox) async {
     int id = 0;
     var allStockBooks = stockBookBox.values.toList();
     if (allStockBooks.length > 1) {
@@ -30,7 +47,7 @@ class SetupHive {
       id = 0;
     }
 
-    var stockBookBoxID = await Hive.openBox<int>("stockBooksID");
+    var stockBookBoxID = await Hive.openBox<int>("stockBookID");
     stockBookBoxID.put("id", id);
 
     int? idsi = stockBookBoxID.get("id");

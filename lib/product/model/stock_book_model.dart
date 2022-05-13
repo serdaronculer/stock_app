@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:stock_app/core/helper/id_helper.dart';
+import 'package:stock_app/core/helper/stock_book_id_helper.dart';
 part 'stock_book_model.g.dart';
 
 @HiveType(typeId: 1)
@@ -20,7 +20,7 @@ class StockBookModel extends HiveObject {
   });
 
   factory StockBookModel.create(String bookName) {
-    IDHelper idHelper = IDHelper();
+    StockBookIDHelper idHelper = StockBookIDHelper();
 
     return StockBookModel(id: idHelper.getID()!, bookName: bookName, creationDate: DateTime.now());
   }

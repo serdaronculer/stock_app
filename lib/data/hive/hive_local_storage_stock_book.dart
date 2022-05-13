@@ -4,10 +4,10 @@ import 'package:hive/hive.dart';
 import 'package:stock_app/data/abstract_local_storage.dart';
 import 'package:stock_app/product/model/stock_book_model.dart';
 
-class HiveLocalStorage extends LocalStorage {
+class HiveLocalStorageStockBook extends LocalStorageStockBook {
   late Box<StockBookModel> _stockBookBox;
 
-  HiveLocalStorage() {
+  HiveLocalStorageStockBook() {
     _stockBookBox = Hive.box<StockBookModel>("stockBooks");
   }
   @override

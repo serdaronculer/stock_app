@@ -11,4 +11,10 @@ class LanguageItems {
   static const makeEdit = "Stok defterini Güncelle";
   static const createStockBook = "Yeni Stok Defteri Oluştur";
   static const signOut = "Çıkış yap";
+
+  static const stockName = "Stok adı";
+  static const stockQuantity = "Stok miktarı";
+  static const none = "Yok";
+
+  static const category = "Kategori";
 }

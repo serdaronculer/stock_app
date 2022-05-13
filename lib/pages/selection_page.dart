@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:stock_app/core/constants/color_constants.dart';
-import 'package:stock_app/core/constants/font_constants.dart';
-import 'package:stock_app/core/constants/padding_constants.dart';
-import 'package:stock_app/core/constants/size_constants.dart';
+import 'package:stock_app/business_layer/login_page_layer.dart';
+import 'package:stock_app/core/constants/constants.dart';
+
 import 'package:stock_app/product/language/language_items.dart';
-import 'package:stock_app/product/model/stock_book_model.dart';
+
 import 'package:stock_app/product/widgets/logo_widget.dart';
 
-import '../product/providers/all_providers.dart';
+import '../product/providers/stock_book_provider/all_providers.dart';
 import '../product/widgets/login_icon_button.dart';
 import '../product/widgets/stock_book_list_widget.dart';
 
@@ -23,6 +22,7 @@ class SelectionPage extends ConsumerStatefulWidget {
 
 class _SelectionPageState extends ConsumerState<SelectionPage> {
   final TextEditingController _textEditingController = TextEditingController();
+  final BLLLoginPage _bllLoginPage = BLLLoginPage();
   bool isSelected = false;
 
   @override
@@ -70,7 +70,7 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
                           icon: const Icon(Icons.add),
                           onPressed: selectedStockBooks.isEmpty
                               ? () {
-                                  alertMessage(Selection.add);
+                                  myAlertDialog(Selection.add);
                                 }
                               : null,
                         ),
@@ -78,7 +78,7 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
                           icon: const Icon(Icons.edit),
                           onPressed: selectedStockBooks.length == 1
                               ? () {
-                                  alertMessage(Selection.edit);
+                                  myAlertDialog(Selection.edit);
                                 }
                               : null,
                         ),
@@ -86,7 +86,7 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
                           icon: const Icon(Icons.delete),
                           onPressed: selectedStockBooks.isNotEmpty
                               ? () {
-                                  alertMessage(Selection.delete);
+                                  myAlertDialog(Selection.delete);
                                 }
                               : null,
                         ),
@@ -103,23 +103,7 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
     );
   }
 
-  editSelectedStockBook() {
-    var selectedStockBook = ref.watch(selectedStockBooksProivder).first;
-
-    ref.watch(selectedStockBooksProivder.notifier).editStockBook(selectedStockBook.id, _textEditingController.text);
-    ref.watch(stockBooksProvider.notifier).editStockBook(selectedStockBook.copyWith(bookName: _textEditingController.text));
-    ref.watch(selectedStockBooksProivder.notifier).removeAllStockBook();
-    Navigator.of(context).pop();
-    _textEditingController.text = "";
-  }
-
-  createStockBook() {
-    ref.read(stockBooksProvider.notifier).addStockBook(StockBookModel.create(_textEditingController.text));
-    _textEditingController.text = "";
-    Navigator.of(context).pop();
-  }
-
-  alertMessage(Selection selection) {
+  myAlertDialog(Selection selection) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -156,11 +140,15 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
                   ),
             actions: [
               TextButton(
-                onPressed: selection == Selection.edit
-                    ? editSelectedStockBook
-                    : selection == Selection.delete
-                        ? deleteSelectedStockBooks
-                        : createStockBook,
+                onPressed: () {
+                  if (selection == Selection.edit) {
+                    _bllLoginPage.editSelectedStockBook(ref, context, _textEditingController);
+                  } else if (selection == Selection.delete) {
+                    _bllLoginPage.deleteSelectedStockBooks(ref, context, _textEditingController);
+                  } else {
+                    _bllLoginPage.addStockBook(ref, context, _textEditingController);
+                  }
+                },
                 child: const Text(LanguageItems.yesMessage),
               ),
               TextButton(
@@ -171,16 +159,6 @@ class _SelectionPageState extends ConsumerState<SelectionPage> {
             ],
           );
         });
-  }
-
-  deleteSelectedStockBooks() {
-    var selectedStockBooks = ref.watch(selectedStockBooksProivder);
-
-    for (var item in selectedStockBooks) {
-      ref.watch(stockBooksProvider.notifier).deleteStockBook(item);
-    }
-    ref.watch(selectedStockBooksProivder.notifier).removeAllStockBook();
-    Navigator.of(context).pop();
   }
 
   Text _myStockBooks(BuildContext context) {

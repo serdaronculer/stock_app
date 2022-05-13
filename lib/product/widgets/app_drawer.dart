@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stock_app/core/constants/constants.dart';
 
-import '../../core/constants/color_constants.dart';
-import '../../core/constants/padding_constants.dart';
-import '../../core/constants/size_constants.dart';
 import '../../core/scroll.dart';
 import '../language/language_items.dart';
-import '../model/stock_book_model.dart';
-import '../providers/all_providers.dart';
+
+import '../providers/stock_book_provider/all_providers.dart';
 
 class AppDrawer extends ConsumerStatefulWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -72,7 +70,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                 child: ScrollConfiguration(
                   behavior: MyBehavior(),
                   child: ListView(
-                    children: stockBookItems(allStockBooks),
+                    children: stockBookItems(ref),
                   ),
                 ),
               ),
@@ -89,11 +87,16 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
     );
   }
 
-  List<ListTile> stockBookItems(List<StockBookModel> allStockBooks) {
+  List<ListTile> stockBookItems(WidgetRef ref) {
     List<ListTile> widgetList = [];
+    var allStockBooks = ref.watch(stockBooksProvider);
 
     for (var i = 0; i < allStockBooks.length; i++) {
       var listTile = ListTile(
+        onTap: () {
+          ref.watch(setStockBookSelectedProvider.state).state = allStockBooks[i];
+          Navigator.of(context).pop();
+        },
         minVerticalPadding: 0,
         contentPadding: EdgeInsets.zero,
         title: Text(
