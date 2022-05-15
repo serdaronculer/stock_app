@@ -12,3 +12,9 @@ final allStocksProvider = FutureProvider<List<StockModel>>((ref) async {
   List<StockModel> _stocks = await ref.watch(stocksProvider);
   return _stocks;
 });
+
+final getFilteredStocksProvider = StateProvider<AsyncValue<List<StockModel>>>((ref) {
+  var _stocks = ref.watch(allStocksProvider);
+
+  return _stocks;
+});

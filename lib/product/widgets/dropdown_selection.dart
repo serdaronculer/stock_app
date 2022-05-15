@@ -3,13 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stock_app/core/constants/constants.dart';
 import 'package:stock_app/product/language/language_items.dart';
+import 'package:stock_app/product/providers/stock_book_provider/all_providers.dart';
 
 import '../model/category_model.dart';
 import '../providers/category_provider/all_providers.dart';
 
 class DropDownSelectionWidget extends ConsumerStatefulWidget {
-  const DropDownSelectionWidget({Key? key}) : super(key: key);
-
+  const DropDownSelectionWidget({Key? key, this.isFiltered = false}) : super(key: key);
+  final bool isFiltered;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _DropDownSelectionWidgetState();
 }
@@ -84,10 +85,12 @@ class _DropDownSelectionWidgetState extends ConsumerState<DropDownSelectionWidge
                   color: AppColors.mcgpalette0[900],
                 ),
                 underline: Container(),
-                value: ref.watch(selectedCategoryProvider),
+                value: widget.isFiltered ? ref.watch(selectedCategoryFilteredProvider) : ref.watch(selectedCategoryProvider),
                 items: myCategories(),
                 onChanged: (value) {
-                  ref.watch(setCategoryProvider.state).state = value!;
+                  widget.isFiltered
+                      ? ref.watch(setCategoryFilteredProvider.state).state = value!
+                      : ref.watch(setCategoryProvider.state).state = value!;
                 }),
           ),
         ],
@@ -98,7 +101,9 @@ class _DropDownSelectionWidgetState extends ConsumerState<DropDownSelectionWidge
   List<DropdownMenuItem<int>> myCategories() {
     List<DropdownMenuItem<int>> dropDownItems = [];
     ref.watch(getAllCategoryProvider).whenData((categories) {
-      for (var item in categories) {
+      var _categories =
+          categories.where((element) => element.stockBookID == ref.watch(selectedStockBookProvider).id || element.id == 0).toList();
+      for (var item in _categories) {
         var value = DropdownMenuItem<int>(child: Text(item.categoryName), value: item.id);
         dropDownItems.add(value);
       }
@@ -142,28 +147,3 @@ class _DropDownSelectionWidgetState extends ConsumerState<DropDownSelectionWidge
         });
   }
 }
-
-
-/* DropdownButtonFormField(
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          
-          prefixIcon: Icon(Icons.sort),
-          label: Text("Ürün Grubu"),
-        ),
-        value: "tumu",
-        items: const [
-          DropdownMenuItem<String>(
-            child: Text("Tümü"),
-            value: "tumu",
-          ),
-          DropdownMenuItem<String>(
-            child: Text("Ekmek"),
-            value: "ekmek",
-          ),
-          DropdownMenuItem<String>(
-            child: Text("Yumurta"),
-            value: "yumurta",
-          ),
-        ],
-        onChanged: (deger) {}); */

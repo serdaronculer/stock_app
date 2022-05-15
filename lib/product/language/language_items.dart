@@ -13,8 +13,12 @@ class LanguageItems {
   static const signOut = "Çıkış yap";
 
   static const stockName = "Stok adı";
+  static const shouldDeleteStock = "Stoğu silmek istediğinize emin misiniz?";
   static const stockQuantity = "Stok miktarı";
   static const none = "Yok";
 
   static const category = "Kategori";
+
+  static const add = "Ekle";
+  static const remove = "Çıkar";
 }

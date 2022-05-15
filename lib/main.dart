@@ -25,6 +25,7 @@ void getItSetup() {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SetupHive.setupHive();
+
   getItSetup();
 
   runApp(const ProviderScope(child: MyApp()));

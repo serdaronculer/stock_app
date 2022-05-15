@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:stock_app/core/constants/constants.dart';
 
 import '../../core/scroll.dart';
 import '../language/language_items.dart';
 
+import '../model/stock_book_model.dart';
 import '../providers/stock_book_provider/all_providers.dart';
+import '../providers/stock_provider/all_providers.dart';
 
 class AppDrawer extends ConsumerStatefulWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -15,6 +18,15 @@ class AppDrawer extends ConsumerStatefulWidget {
 }
 
 class _AppDrawerState extends ConsumerState<AppDrawer> {
+  late Box<int> _selectedStockBook;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _selectedStockBook = Hive.box<int>("selectedStockBookID");
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedStockBook = ref.watch(selectedStockBookProvider);
@@ -95,6 +107,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
       var listTile = ListTile(
         onTap: () {
           ref.watch(setStockBookSelectedProvider.state).state = allStockBooks[i];
+          saveSelectedStockBook(allStockBooks[i], ref);
           Navigator.of(context).pop();
         },
         minVerticalPadding: 0,
@@ -107,5 +120,11 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
       widgetList.add(listTile);
     }
     return widgetList;
+  }
+
+  saveSelectedStockBook(StockBookModel _stockBook, WidgetRef ref) async {
+    await _selectedStockBook.clear();
+    await _selectedStockBook.put(_stockBook.id, _stockBook.id);
+    ref.read(stocksProvider.notifier).getAllStocks();
   }
 }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:stock_app/business_layer/main_page_layer.dart';
 import 'package:stock_app/core/constants/constants.dart';
+import 'package:stock_app/pages/list_page.dart';
 import 'package:stock_app/product/language/language_items.dart';
+
 import 'package:stock_app/product/model/stock_model.dart';
 import 'package:stock_app/product/providers/category_provider/all_providers.dart';
 
@@ -13,7 +16,7 @@ import '../product/widgets/app_drawer.dart';
 import '../product/widgets/custom_textfield.dart';
 import '../product/widgets/dropdown_selection.dart';
 import 'home_page.dart';
-import 'operation_page.dart';
+import 'table_page.dart';
 
 class MainPage extends ConsumerStatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -23,14 +26,16 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderStateMixin {
+  BLLMainPage bllMainPage = BLLMainPage();
   late TabController _tabController;
   late TextEditingController _stockNameController;
   late TextEditingController _stockQuantityController;
+  var _stockBoxPngLocation = "assets/png/stockbox.png";
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _stockNameController = TextEditingController();
     _stockQuantityController = TextEditingController();
   }
@@ -66,14 +71,14 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
           ),
           Tab(
             child: Icon(Icons.transform_outlined),
+          ),
+          Tab(
+            child: Icon(Icons.list),
           )
         ]));
   }
 
   FloatingActionButton _floatingActionButton() {
-    TextEditingController _textController = TextEditingController();
-
-    String secilenDeger = "tumu";
     return FloatingActionButton(
       child: const Icon(Icons.add),
       onPressed: () {
@@ -133,19 +138,13 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                                               onPrimary: AppColors.white,
                                             ),
                                             onPressed: () {
-                                              var selectedCategoryID = ref.watch(selectedCategoryProvider);
-                                              var categories = ref.watch(categoriesProvider);
-                                              var category = categories.firstWhere((element) => element.id == selectedCategoryID);
+                                              bllMainPage.addStock(ref, _stockNameController, _stockQuantityController);
 
-                                              ref.read(stocksProvider.notifier).addStock(StockModel.create(
-                                                  ref: ref,
-                                                  stockName: _stockNameController.text,
-                                                  categoryName: category.categoryName,
-                                                  quantity: int.parse(_stockQuantityController.text)));
+                                              Navigator.pop(context);
                                             },
-                                            icon: Icon(Icons.add),
+                                            icon: const Icon(Icons.add),
                                             label: const Text(
-                                              "Ekle",
+                                              LanguageItems.add,
                                               style: TextStyle(fontSize: AppSize.mediumSize),
                                             ),
                                           ),
@@ -163,14 +162,11 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                   ),
                 ),
                 Positioned(
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    child: Image.asset(
-                      "assets/png/stockbox.png",
-                      height: 150.h,
-                      width: 150.w,
-                    )),
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  child: Image.asset(_stockBoxPngLocation, height: 150.h, width: 150.w),
+                ),
               ],
             ),
           ),
@@ -186,7 +182,8 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
         controller: _tabController,
         children: const <Widget>[
           HomePage(),
-          OperationPage(),
+          TablePage(),
+          ListPage(),
         ],
       ),
     );
@@ -226,10 +223,3 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
     ));
   }
 }
-
-// 
-
-
-
-
-         

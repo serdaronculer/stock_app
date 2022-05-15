@@ -51,15 +51,22 @@ class StockModel extends HiveObject {
     );
   }
 
-  factory StockModel.create({required WidgetRef ref, required String stockName, required String categoryName, required int quantity}) {
+  factory StockModel.create(
+      {required WidgetRef ref, required String stockName, required String categoryName, required int quantity, DateTime? dateTime}) {
     StockBookModel stockBook = ref.watch(selectedStockBookProvider);
     StockIDHelper idHelper = StockIDHelper();
+
     return StockModel(
         id: idHelper.getID(),
         stockBookID: stockBook.id,
         stockName: stockName,
         categoryName: categoryName,
         quantity: quantity,
-        creationDate: DateTime.now());
+        creationDate: dateTime ?? DateTime.now());
+  }
+
+  @override
+  String toString() {
+    return stockName;
   }
 }

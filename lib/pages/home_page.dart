@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stock_app/product/model/category_model.dart';
 
+
+
 import '../product/providers/category_provider/all_providers.dart';
 import '../product/providers/stock_book_provider/all_providers.dart';
 import '../product/widgets/dropdown_selection.dart';
@@ -17,9 +19,10 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     var _allCategories = ref.watch(getAllCategoryProvider);
+
     return Column(
       children: [
-        const DropDownSelectionWidget(),
+        const DropDownSelectionWidget(isFiltered: true),
         Expanded(
           child: _allCategories.when(data: (allCategories) {
             List<CategoryModel> _allCategories =
@@ -39,10 +42,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             return const Center(child: CircularProgressIndicator());
           }),
         ),
+   
       ],
     );
   }
 }
 
-
-//  const DropDownSelectionWidget(),

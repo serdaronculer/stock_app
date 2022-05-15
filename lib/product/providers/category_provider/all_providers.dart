@@ -19,3 +19,12 @@ final setCategoryProvider = StateProvider((ref) {
 final selectedCategoryProvider = Provider((ref) {
   return ref.watch(setCategoryProvider);
 });
+
+final setCategoryFilteredProvider = StateProvider((ref) {
+  return 0;
+});
+
+final selectedCategoryFilteredProvider = Provider((ref) {
+ return ref.watch(setCategoryFilteredProvider);
+
+});

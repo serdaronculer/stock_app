@@ -16,16 +16,16 @@ class SetupHive {
     var stockBookBox = await Hive.openBox<StockBookModel>("stockBooks");
 
     await Hive.openBox<StockModel>("stocks");
-    var stockName =  Hive.box<StockModel>("stocks");
+    var stockName = Hive.box<StockModel>("stocks");
     //stockName.clear();
 
     await Hive.openBox<int>("stockID");
 
-     await Hive.openBox<CategoryModel>("categories");
-    
+    await Hive.openBox<CategoryModel>("categories");
 
-     await Hive.openBox<int>("categoryID");
-   
+    await Hive.openBox<int>("categoryID");
+
+    await Hive.openBox<int>("selectedStockBookID");
 
     stockBookIDGenerator(stockBookBox);
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:stock_app/core/constants/constants.dart';
 
 import 'package:stock_app/core/scroll.dart';
@@ -8,6 +9,7 @@ import 'package:stock_app/product/language/language_items.dart';
 import '../../core/helper/all_helper.dart';
 
 import '../model/stock_book_model.dart';
+import '../model/stock_model.dart';
 import '../providers/stock_book_provider/all_providers.dart';
 
 class StockBookListWidget extends ConsumerStatefulWidget {
@@ -18,6 +20,14 @@ class StockBookListWidget extends ConsumerStatefulWidget {
 }
 
 class _StockBookListWidgetState extends ConsumerState<StockBookListWidget> {
+  late Box<int> _selectedStockBook;
+  @override
+  void initState() {
+    super.initState();
+    Hive.box<StockModel>("stocks");
+    _selectedStockBook = Hive.box<int>("selectedStockBookID");
+  }
+
   @override
   Widget build(BuildContext context) {
     final _allStockBooks = ref.watch(getAllStockBooksProvider);
@@ -66,6 +76,8 @@ class _StockBookListWidgetState extends ConsumerState<StockBookListWidget> {
                 if (selectedStockBooks.isEmpty) {
                   Navigator.of(context).pushNamed('/home');
                   ref.watch(setStockBookSelectedProvider.state).state = _stockBook;
+
+                  saveSelectedStockBook(_stockBook);
                 } else {
                   changeStatus(_stockBook, true);
                 }
@@ -82,6 +94,12 @@ class _StockBookListWidgetState extends ConsumerState<StockBookListWidget> {
         ),
       ),
     );
+  }
+
+  saveSelectedStockBook(StockBookModel _stockBook) async {
+    await _selectedStockBook.clear();
+    await _selectedStockBook.put(_stockBook.id, _stockBook.id);
+  
   }
 
   changeStatus(StockBookModel stockBookModel, bool onTap) {

@@ -5,9 +5,11 @@ import '../abstract_local_storage.dart';
 
 class HiveLocalStorageStock extends LocalStorageStock {
   late Box<StockModel> _stockBox;
+  late Box<int> _selectedStockBookBox;
 
   HiveLocalStorageStock() {
     _stockBox = Hive.box<StockModel>("stocks");
+    _selectedStockBookBox = Hive.box("selectedStockBookID");
   }
 
   @override
@@ -38,8 +40,9 @@ class HiveLocalStorageStock extends LocalStorageStock {
   }
 
   @override
-  Future<List<StockModel>> getAllStock() async{
-  var _allStocks = _stockBox.values.toList();
+  Future<List<StockModel>> getAllStock() async {
+    var deger = _selectedStockBookBox.values.first;
+    var _allStocks = _stockBox.values.where((element) => element.stockBookID == deger).toList();
     if (_allStocks.isNotEmpty) {
       _allStocks.sort((a, b) => b.creationDate.compareTo(a.creationDate));
     }
@@ -47,8 +50,8 @@ class HiveLocalStorageStock extends LocalStorageStock {
   }
 
   @override
-  Future<StockModel?> getStock({required int id}) async{
-   if (_stockBox.containsKey(id)) {
+  Future<StockModel?> getStock({required int id}) async {
+    if (_stockBox.containsKey(id)) {
       return _stockBox.get(id);
     } else {
       return null;
